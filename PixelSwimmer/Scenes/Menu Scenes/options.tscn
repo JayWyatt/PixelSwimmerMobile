@@ -1,0 +1,61 @@
+[gd_scene load_steps=5 format=3 uid="uid://cghi1x1nngvw8"]
+
+[ext_resource type="Script" uid="uid://dnwruofbat5ej" path="res://Scripts/Menu Scripts/options_menu.gd" id="1_4tmxy"]
+[ext_resource type="Texture2D" uid="uid://bhqofrx5vpa00" path="res://Assets/Backgrounds/Options Menu Background.png" id="2_03aur"]
+[ext_resource type="Texture2D" uid="uid://crlfeyg4504ld" path="res://Assets/Menu Buttons/Back BUTTON (not hovered).png" id="4_kftxf"]
+[ext_resource type="Texture2D" uid="uid://kivgdmkjc8lo" path="res://Assets/Menu Buttons/Back BUTTON (hovered).png" id="5_663nc"]
+
+[node name="Options" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 282.0
+offset_top = 38.0
+offset_right = 282.0
+offset_bottom = 38.0
+script = ExtResource("1_4tmxy")
+
+[node name="Background" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CervixMenuBackgroundBlurred" type="Sprite2D" parent="Background"]
+position = Vector2(-12.000061, 441.49997)
+texture = ExtResource("2_03aur")
+
+[node name="VolumeControl" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = -214.00003
+offset_top = 278.00003
+offset_right = 93.84207
+offset_bottom = 435.89005
+scale = Vector2(1.4000682, 1.3643454)
+
+[node name="Vol_Label" type="Label" parent="VolumeControl"]
+layout_mode = 2
+text = "Volume"
+
+[node name="Volume" type="HSlider" parent="VolumeControl"]
+layout_mode = 2
+min_value = -80.0
+max_value = 0.0
+
+[node name="Mute_Label" type="Label" parent="VolumeControl"]
+layout_mode = 2
+text = "Mute"
+
+[node name="Mute" type="CheckBox" parent="VolumeControl"]
+layout_mode = 2
+
+[node name="BackButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = -161.0
+offset_top = 624.0
+offset_right = 139.0
+offset_bottom = 724.0
+texture_normal = ExtResource("4_kftxf")
+texture_pressed = ExtResource("5_663nc")
+
+[connection signal="value_changed" from="VolumeControl/Volume" to="." method="_on_volume_value_changed"]
+[connection signal="toggled" from="VolumeControl/Mute" to="." method="_on_mute_toggled"]
+[connection signal="pressed" from="BackButton" to="." method="_on_back_pressed"]

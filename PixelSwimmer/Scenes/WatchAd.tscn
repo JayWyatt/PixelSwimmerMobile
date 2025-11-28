@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://bes74unuewxq0"]
+
+[ext_resource type="Script" uid="uid://52wsbh813645" path="res://addons/AdmobPlugin/Admob.gd" id="1_2mtet"]
+[ext_resource type="Script" uid="uid://dgoylghavix2g" path="res://Scripts/WatchAd.gd" id="1_r44f4"]
+
+[node name="Adverts" type="Node2D"]
+script = ExtResource("1_r44f4")
+
+[node name="AdMob" type="Node" parent="."]
+script = ExtResource("1_2mtet")
+android_debug_application_id = "ca-app-pub-2318785815530018~4805631351"
+metadata/_custom_type_script = "uid://52wsbh813645"
+
+[node name="WatchAdButton" type="Button" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 229.0
+offset_top = 464.5
+offset_right = 311.0
+offset_bottom = 495.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Watch Ad"
+
+[connection signal="initialization_completed" from="AdMob" to="." method="_on_ad_mob_initialization_completed"]
+[connection signal="rewarded_ad_failed_to_load" from="AdMob" to="." method="_on_ad_mob_rewarded_ad_failed_to_load"]
+[connection signal="rewarded_ad_loaded" from="AdMob" to="." method="_on_ad_mob_rewarded_ad_loaded"]
+[connection signal="rewarded_ad_user_earned_reward" from="AdMob" to="." method="_on_ad_mob_rewarded_ad_user_earned_reward"]
+[connection signal="pressed" from="WatchAdButton" to="." method="_on_watch_ad_button_pressed"]

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://drdtog0y5spwt"
+path="res://.godot/imported/ShieldBuffSFX.wav-d1fd8dc21e5925fd7bc8344046ff3873.sample"
+
+[deps]
+
+source_file="res://Assets/Sound Design/SFX/Buffs SFX/ShieldBuffSFX.wav"
+dest_files=["res://.godot/imported/ShieldBuffSFX.wav-d1fd8dc21e5925fd7bc8344046ff3873.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
