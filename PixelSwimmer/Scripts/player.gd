@@ -61,7 +61,7 @@ var has_damage_buff: bool = false
 var damage_time_left: float = 0.0
 var level_completed: bool = false
 var is_vulnerable = true
-var is_dead = false 
+var is_dead = false
 
 # ───────────────────────────────────────────────
 # Node References
@@ -315,3 +315,10 @@ func _on_body_entered(body):
 
 func _on_hit() -> void:
 	$"../SFX/EnemyHit".play()
+
+func get_save_data() -> Dictionary:
+	return {
+		"position": global_position,
+		"hp": hp,
+		# score is managed in root/autoload, not here
+	}

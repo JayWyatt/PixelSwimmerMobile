@@ -28,6 +28,7 @@ GameSession="*res://Scripts/Global Scripts/GameSession.gd"
 MusicManager="*res://Scenes/Global Scenes/MusicManager.tscn"
 SceneHelper="*res://Scripts/Global Scripts/SceneHelper.gd"
 SceneLoader="*res://Scripts/Global Scripts/SceneLoader.gd"
+WatchAd="*res://Scripts/Global Scripts/WatchAd.gd"
 
 [display]
 

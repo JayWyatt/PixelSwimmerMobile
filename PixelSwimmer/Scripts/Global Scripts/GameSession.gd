@@ -11,22 +11,32 @@ func _ready():
 	load_save()
 
 func load_save():
-	var save_file = FileAccess.open("user://save.data", FileAccess.READ)
+	if not FileAccess.file_exists("user://save.data"):
+		high_score = 0
+		highest_unlocked_level = 0
+		highest_unlocked_chapter = 0
+		return
 
-	if save_file:
-		var length := save_file.get_length()
-		if length >= 12:
-			high_score = save_file.get_32()
-			highest_unlocked_level = save_file.get_32()
-			highest_unlocked_chapter = save_file.get_32()
-		elif length >= 8:
-			high_score = save_file.get_32()
-			highest_unlocked_level = save_file.get_32()
-			highest_unlocked_chapter = 0
-		else:
-			high_score = save_file.get_32()
-			highest_unlocked_level = 0
-			highest_unlocked_chapter = 0
+	var save_file := FileAccess.open("user://save.data", FileAccess.READ)
+	if save_file == null:
+		high_score = 0
+		highest_unlocked_level = 0
+		highest_unlocked_chapter = 0
+		return
+
+	var length := save_file.get_length()
+	if length >= 12:
+		high_score = save_file.get_32()
+		highest_unlocked_level = save_file.get_32()
+		highest_unlocked_chapter = save_file.get_32()
+	elif length >= 8:
+		high_score = save_file.get_32()
+		highest_unlocked_level = save_file.get_32()
+		highest_unlocked_chapter = 0
+	elif length >= 4:
+		high_score = save_file.get_32()
+		highest_unlocked_level = 0
+		highest_unlocked_chapter = 0
 	else:
 		high_score = 0
 		highest_unlocked_level = 0

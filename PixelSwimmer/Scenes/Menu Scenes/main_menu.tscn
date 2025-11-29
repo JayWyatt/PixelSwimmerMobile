@@ -1,4 +1,4 @@
-[gd_scene load_steps=138 format=3 uid="uid://7f0sfjrmit5a"]
+[gd_scene load_steps=137 format=3 uid="uid://7f0sfjrmit5a"]
 
 [ext_resource type="Script" uid="uid://c26bddco33he0" path="res://Scripts/Menu Scripts/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://c57jae4yepb5k" path="res://Assets/Backgrounds/ChatGPT Image Nov 27, 2025, 02_51_53 PM.png" id="2_eb8pr"]
@@ -12,7 +12,6 @@
 [ext_resource type="Texture2D" uid="uid://bn6dquwxy0scr" path="res://Assets/Sprites/Enemy Sprites/EnemyBossSprite.png" id="11_vh5po"]
 [ext_resource type="Texture2D" uid="uid://ceyw78drll0r4" path="res://Assets/Menu Buttons/Pixel Swimmer TITLE CARD.png" id="11_vr1f0"]
 [ext_resource type="Texture2D" uid="uid://b2xwggpd1vctm" path="res://Assets/Sprites/Enemy Sprites/BossMinionSprite.png" id="12_rrnp0"]
-[ext_resource type="PackedScene" uid="uid://bes74unuewxq0" path="res://Scenes/WatchAd.tscn" id="13_hulit"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_t1dhk"]
 atlas = ExtResource("10_vr1f0")
@@ -993,8 +992,6 @@ scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_nfi07")
 autoplay = "default"
 frame_progress = 0.7611761
-
-[node name="WatchAd" parent="." instance=ExtResource("13_hulit")]
 
 [connection signal="pressed" from="Buttons/Survival" to="." method="_on_survival_pressed"]
 [connection signal="pressed" from="Buttons/StoryMode" to="." method="_on_story_mode_pressed"]

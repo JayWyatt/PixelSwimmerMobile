@@ -96,6 +96,7 @@ const BUFF_AVOID_RADIUS := 32.0
 var boss_dead: bool = false
 var is_boss_level: bool = false
 var pending_boss_egg = false
+var revive_state: Dictionary = {}
 
 #FUNCTIONS
 
@@ -127,6 +128,9 @@ func set_score(value):
 
 #READY FUNCTION #run this code when the scene starts and everything is in place
 func _ready() -> void:
+	if is_instance_valid(WatchAd):
+		WatchAd.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
+	
 	#level text on ui
 	hud.show_level_for_seconds(get_level_text(), 3.0)
 	
@@ -158,38 +162,8 @@ func _ready() -> void:
 
 	player.global_position = player_spawn.global_position
 
-
-	# ---------- SAVE LOADING FIXED HERE ----------
-	var save_file = FileAccess.open("user://save.data", FileAccess.READ)
-
-	if save_file:
-		if save_file.get_length() >= 12:
-			high_score = save_file.get_32()
-			GameSession.highest_unlocked_level = save_file.get_32()
-			GameSession.highest_unlocked_chapter = save_file.get_32()
-		elif save_file.get_length() >= 8:
-			high_score = save_file.get_32()
-			GameSession.highest_unlocked_level = save_file.get_32()
-			GameSession.highest_unlocked_chapter = 0
-		else:
-			high_score = save_file.get_32()
-			GameSession.highest_unlocked_level = 0
-			GameSession.highest_unlocked_chapter = 0
-	else:
-		high_score = 0
-		GameSession.highest_unlocked_level = 0
-		GameSession.highest_unlocked_chapter = 0
-		save_game()
-		
-			## --------- DEBUG: WIPE PROGRESS ONCE ---------
-	#GameSession.highest_unlocked_level = 0
-	#save_game()
-	#print("DEBUG wipe: highest_unlocked_level = ", GameSession.highest_unlocked_level)
-	
-	#GameSession.highest_unlocked_chapter = 0
-	#save_game()
-
-	score = 0
+	set_score(0)  # instead of score = 0
+	high_score = GameSession.high_score
 	player.laser_shot.connect(_on_player_laser_shot)
 	player.killed.connect(_on_player_killed)
 
@@ -345,6 +319,13 @@ func _on_player_killed():
 	if is_instance_valid(minion):
 		minion.queue_free()
 		minion = null
+
+		# Save state for revive
+	var player_data = player.get_save_data()
+	revive_state = {
+		"player": player_data,
+		"score": score
+	}
 
 	gos.set_score(score)
 	gos.set_high_score(high_score)
@@ -615,3 +596,25 @@ func _fail_level_due_to_kills():
 	get_tree().paused = false
 	MusicManager.play_levelfailed_music()
 	level_failed_screen.visible = true
+
+func _on_rewarded_ad_finished(success: bool) -> void:
+	if success:
+		revive_player()
+	else:
+		print("⚠ Rewarded ad failed or was skipped")
+
+func revive_player() -> void:
+	if revive_state.is_empty():
+		return
+
+	get_tree().pause = false
+	
+	player.load_save_data(revive_state["player"])
+	set_score(revive_state["score"])
+
+	# Show HUD again, hide game over
+	gos.visible = false
+	$UILayer/HUD.visible = true
+	$UILayer/HUD/PauseButton.visible = true
+	
+	WatchAd.was_rewarded = false

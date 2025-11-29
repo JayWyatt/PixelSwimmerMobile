@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://bes74unuewxq0"]
+[gd_scene load_steps=5 format=3 uid="uid://bes74unuewxq0"]
 
 [ext_resource type="Script" uid="uid://52wsbh813645" path="res://addons/AdmobPlugin/Admob.gd" id="1_2mtet"]
-[ext_resource type="Script" uid="uid://dgoylghavix2g" path="res://Scripts/WatchAd.gd" id="1_r44f4"]
+[ext_resource type="Script" uid="uid://dgoylghavix2g" path="res://Scripts/Advert Scripts/Adverts.gd" id="1_r44f4"]
+[ext_resource type="Texture2D" uid="uid://dfkm8w0j1mxj6" path="res://Assets/Menu Buttons/WatchAd BUTTON (not hovered).png" id="3_1f2jx"]
+[ext_resource type="Texture2D" uid="uid://cuqclmwq2biqc" path="res://Assets/Menu Buttons/WatchAd BUTTON (hovered).png" id="4_0b7sd"]
 
 [node name="Adverts" type="Node2D"]
 script = ExtResource("1_r44f4")
@@ -11,7 +13,7 @@ script = ExtResource("1_2mtet")
 android_debug_application_id = "ca-app-pub-2318785815530018~4805631351"
 metadata/_custom_type_script = "uid://52wsbh813645"
 
-[node name="WatchAdButton" type="Button" parent="."]
+[node name="WatchAdButton" type="TextureButton" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -23,7 +25,8 @@ offset_right = 311.0
 offset_bottom = 495.5
 grow_horizontal = 2
 grow_vertical = 2
-text = "Watch Ad"
+texture_normal = ExtResource("3_1f2jx")
+texture_pressed = ExtResource("4_0b7sd")
 
 [connection signal="initialization_completed" from="AdMob" to="." method="_on_ad_mob_initialization_completed"]
 [connection signal="rewarded_ad_failed_to_load" from="AdMob" to="." method="_on_ad_mob_rewarded_ad_failed_to_load"]
