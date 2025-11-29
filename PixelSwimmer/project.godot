@@ -29,6 +29,7 @@ MusicManager="*res://Scenes/Global Scenes/MusicManager.tscn"
 SceneHelper="*res://Scripts/Global Scripts/SceneHelper.gd"
 SceneLoader="*res://Scripts/Global Scripts/SceneLoader.gd"
 WatchAd="*res://Scripts/Global Scripts/WatchAd.gd"
+ReviveManager="*res://Scripts/Global Scripts/ReviveManager.gd"
 
 [display]
 

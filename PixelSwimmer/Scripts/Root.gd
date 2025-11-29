@@ -97,7 +97,7 @@ const BUFF_AVOID_RADIUS := 32.0
 var boss_dead: bool = false
 var is_boss_level: bool = false
 var pending_boss_egg = false
-var revive_state: Dictionary = {}
+
 
 #FUNCTIONS
 
@@ -129,14 +129,18 @@ func set_score(value):
 
 #READY FUNCTION #run this code when the scene starts and everything is in place
 func _ready() -> void:
-	if not revive_state.is_empty():
-		gos.visible = true
-		$UILayer/HUD.visible = false
-		return
-	
+	if gos and not gos.revive_requested.is_connected(_on_revive_from_ui):
+		gos.revive_requested.connect(_on_revive_from_ui)
+
 	if is_instance_valid(WatchAd):
 		WatchAd.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
-	
+
+	if not ReviveManager.revive_state.is_empty():
+		gos.visible = true
+		$UILayer/HUD.visible = false
+		score = ReviveManager.revive_state["score"]
+		return
+
 	#level text on ui
 	hud.show_level_for_seconds(get_level_text(), 3.0)
 	
@@ -172,9 +176,6 @@ func _ready() -> void:
 	high_score = GameSession.high_score
 	player.laser_shot.connect(_on_player_laser_shot)
 	player.killed.connect(_on_player_killed)
-	
-	if gos and not gos.revive_requested.is_connected(_on_revive_from_ui):
-		gos.revive_requested.connect(_on_revive_from_ui)
 
 
 #FUNCTIONS
@@ -331,9 +332,9 @@ func _on_player_killed():
 		minion = null
 
 		# Save state for revive
-	var player_data = player.get_save_data()
-	revive_state = {
-		"player": player_data,
+
+	ReviveManager.revive_state = {
+		"player": player.get_save_data(),
 		"score": score
 	}
 
@@ -614,7 +615,7 @@ func _on_rewarded_ad_finished(success: bool) -> void:
 		print("⚠ Reward failed or skipped")
 
 func revive_player() -> void:
-	if revive_state.is_empty():
+	if ReviveManager.revive_state.is_empty():
 		return
 
 	# Safety: remove existing player if needed
@@ -626,8 +627,8 @@ func revive_player() -> void:
 	add_child(player)
 
 	# Restore save data
-	player.load_save_data(revive_state["player"])
-	set_score(revive_state["score"])
+	player.load_save_data(ReviveManager.revive_state["player"])
+	set_score(ReviveManager.revive_state["score"])
 
 	# Reconnect signals
 	player.laser_shot.connect(_on_player_laser_shot)
@@ -638,12 +639,11 @@ func revive_player() -> void:
 	$UILayer/HUD.visible = true
 	$UILayer/HUD/PauseButton.visible = true
 
-	get_tree().paused = false
+	ReviveManager.revive_state.clear()
 	WatchAd.was_rewarded = false
+	get_tree().paused = false
 
 func _on_revive_from_ui() -> void:
-	print("Revive pressed. was_rewarded =", WatchAd.was_rewarded)
-	print("revive_state empty =", revive_state.is_empty())
 	if WatchAd.was_rewarded:
 		revive_player()
 	else:
