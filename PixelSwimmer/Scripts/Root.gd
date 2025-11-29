@@ -127,6 +127,10 @@ func set_score(value):
 	if score >= 1500 and all_buff_scenes[4] not in buff_scenes: #antidote
 		buff_scenes.append(all_buff_scenes[4])
 
+func restore_score(value: int) -> void:
+	score = value
+	hud.score = score
+
 #READY FUNCTION #run this code when the scene starts and everything is in place
 func _ready() -> void:
 	if gos and not gos.revive_requested.is_connected(_on_revive_from_ui):
@@ -150,7 +154,7 @@ func _ready() -> void:
 	if not pause_menu.quit_pressed.is_connected(_quit_game):
 		pause_menu.quit_pressed.connect(_quit_game)
 
-	setup_game_world()
+	setup_game_world() # <-------- DO NOT MOVE ORDER IT WILL BREAK ENEMIES
 
 	if not ReviveManager.revive_state.is_empty():
 		gos.visible = true
@@ -337,6 +341,8 @@ func _on_enemy_killed(points, death_sound, source):
 
 	if score > high_score:
 		high_score = score
+		GameSession.high_score = high_score
+		save_game()
 		
 func _on_enemy_hit():
 	enemy_hit_sound.play()
@@ -357,10 +363,13 @@ func _on_player_killed():
 
 		# Save state for revive
 
-	ReviveManager.revive_state = {
+	if GameSession.mode == "survival":
+		ReviveManager.revive_state = {
 		"player": player.get_save_data(),
 		"score": score
 	}
+	else:
+		ReviveManager.revive_state.clear()
 
 	gos.set_score(score)
 	gos.set_high_score(high_score)
@@ -654,7 +663,7 @@ func revive_player() -> void:
 
 	# Restore save data
 	player.load_save_data(ReviveManager.revive_state["player"])
-	set_score(ReviveManager.revive_state["score"])
+	restore_score(ReviveManager.revive_state["score"])
 	player.hp = min(3, player.max_hp)
 
 	# Reconnect signals
@@ -689,3 +698,5 @@ func setup_game_world():
 	buff_scenes.clear()
 	enemy_scenes.append(all_enemy_scenes[0])
 	buff_scenes.append(all_buff_scenes[0])
+
+	MusicManager.play_survival_music()
