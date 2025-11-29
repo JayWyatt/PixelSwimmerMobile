@@ -87,7 +87,7 @@ const GAME_OVER_MUSIC := preload("res://Assets/Sound Design/Music/Pixel Swimmer 
 #player score
 var score := 0:
 	set = set_score
-var high_score: int = 0
+
 var kills = 0
 var required_kills = 0
 #background movment speed
@@ -192,16 +192,22 @@ func _ready() -> void:
 	player.global_position = player_spawn.global_position
 
 	set_score(0)  # instead of score = 0
-	high_score = GameSession.high_score
+
 	player.laser_shot.connect(_on_player_laser_shot)
 	player.killed.connect(_on_player_killed)
 
 
 #FUNCTIONS
 
-func save_game():
+func save_high_score():
 	var save_file = FileAccess.open("user://save.data", FileAccess.WRITE)
-	save_file.store_32(high_score)
+	save_file.store_32(GameSession.high_score)
+	save_file.store_32(GameSession.highest_unlocked_level)
+	save_file.store_32(GameSession.highest_unlocked_chapter)
+
+func save_story_progress():
+	var save_file = FileAccess.open("user://save.data", FileAccess.WRITE)
+	save_file.store_32(GameSession.high_score)
 	save_file.store_32(GameSession.highest_unlocked_level)
 	save_file.store_32(GameSession.highest_unlocked_chapter)
 
@@ -339,10 +345,9 @@ func _on_enemy_killed(points, death_sound, source):
 
 	kill_label.text = "Kills Left: %d" % required_kills
 
-	if score > high_score:
-		high_score = score
-		GameSession.high_score = high_score
-		save_game()
+	if score > GameSession.high_score:
+		GameSession.high_score = score
+		save_high_score()
 		
 func _on_enemy_hit():
 	enemy_hit_sound.play()
@@ -372,8 +377,7 @@ func _on_player_killed():
 		ReviveManager.revive_state.clear()
 
 	gos.set_score(score)
-	gos.set_high_score(high_score)
-	save_game()
+	gos.set_high_score(GameSession.high_score)
 
 	if GameSession.mode == "survival":
 		# Survival: game over screen
@@ -571,7 +575,7 @@ func show_level_complete_screen():
 	var next_level = finished_level + 1
 	if next_level > GameSession.highest_unlocked_level:
 		GameSession.highest_unlocked_level = next_level
-		save_game()
+		save_story_progress()
 
 func show_chapter_complete_screen():
 	get_tree().paused = true
@@ -585,7 +589,7 @@ func show_chapter_complete_screen():
 
 	if next_chapter > GameSession.highest_unlocked_chapter:
 		GameSession.highest_unlocked_chapter = next_chapter
-		save_game()
+		save_story_progress()
 
 func _on_next_level_pressed() -> void:
 	# Move to the next level index
