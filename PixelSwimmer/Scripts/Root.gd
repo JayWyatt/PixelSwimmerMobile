@@ -607,14 +607,13 @@ func revive_player() -> void:
 	if revive_state.is_empty():
 		return
 
-	get_tree().pause = false
-	
+	get_tree().paused = false
+
 	player.load_save_data(revive_state["player"])
 	set_score(revive_state["score"])
 
-	# Show HUD again, hide game over
 	gos.visible = false
 	$UILayer/HUD.visible = true
 	$UILayer/HUD/PauseButton.visible = true
-	
+
 	WatchAd.was_rewarded = false

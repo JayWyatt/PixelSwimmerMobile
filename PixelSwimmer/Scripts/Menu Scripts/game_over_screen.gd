@@ -11,5 +11,9 @@ func _on_texture_button_pressed() -> void:
 	SceneHelper._deferred_change_scene.call_deferred("res://Scenes/Root.tscn")
 
 func _on_revive_pressed() -> void:
-	WatchAd.was_rewarded = false
-	SceneHelper._deferred_change_scene.call_deferred("res://Scenes/AdVert Scenes/AdScreen.tscn")
+	if WatchAd.was_rewarded:
+		# Reward already earned → revive immediately
+		SceneHelper._deferred_change_scene.call_deferred("res://Scenes/Root.tscn")
+	else:
+		# No reward → go watch ad
+		SceneHelper._deferred_change_scene.call_deferred("res://Scenes/AdVert Scenes/AdScreen.tscn")
