@@ -135,11 +135,30 @@ func _ready() -> void:
 	if is_instance_valid(WatchAd):
 		WatchAd.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 
+	if not pause_menu.resume_pressed.is_connected(_resume_game):
+		pause_menu.resume_pressed.connect(_resume_game)
+	
+	if not pause_menu.options_pressed.is_connected(_open_pause_options):
+		pause_menu.options_pressed.connect(_open_pause_options)
+	
+	if not pause_menu.options_back_pressed.is_connected(_pause_options_back):
+		pause_menu.options_back_pressed.connect(_pause_options_back)
+	
+	if not pause_menu.main_menu_pressed.is_connected(_go_to_main_menu):
+		pause_menu.main_menu_pressed.connect(_go_to_main_menu)
+	
+	if not pause_menu.quit_pressed.is_connected(_quit_game):
+		pause_menu.quit_pressed.connect(_quit_game)
+
+	setup_game_world()
+
 	if not ReviveManager.revive_state.is_empty():
 		gos.visible = true
 		$UILayer/HUD.visible = false
 		score = ReviveManager.revive_state["score"]
 		return
+
+	
 
 	#level text on ui
 	hud.show_level_for_seconds(get_level_text(), 3.0)
@@ -164,11 +183,7 @@ func _ready() -> void:
 	SettingsManager.load_settings()
 	
 	#recieves signals
-	pause_menu.resume_pressed.connect(_resume_game)
-	pause_menu.options_pressed.connect(_open_pause_options)
-	pause_menu.options_back_pressed.connect(_pause_options_back)
-	pause_menu.main_menu_pressed.connect(_go_to_main_menu)
-	pause_menu.quit_pressed.connect(_quit_game)
+
 
 	player.global_position = player_spawn.global_position
 
@@ -239,8 +254,17 @@ func _quit_game():
 	get_tree().quit()
 
 func _on_pause_button_pressed() -> void:
+	print("PAUSE CLICKED | paused =", get_tree().paused,
+	"| pause_menu visible =", pause_menu.visible,
+	"| options_menu visible =", options_menu.visible,
+	"| HUD visible =", hud.visible)
 	_pause_game()
 	Input.vibrate_handheld(40, 0.3)
+
+func reset_pause_menu():
+	pause_menu.visible = false
+	options_menu.visible = false
+	get_tree().paused = false
 
 # ------------------------------------------------------------
 # Main Game Logic
@@ -615,6 +639,8 @@ func _on_rewarded_ad_finished(success: bool) -> void:
 		print("⚠ Reward failed or skipped")
 
 func revive_player() -> void:
+	reset_pause_menu()
+	
 	if ReviveManager.revive_state.is_empty():
 		return
 
@@ -629,6 +655,7 @@ func revive_player() -> void:
 	# Restore save data
 	player.load_save_data(ReviveManager.revive_state["player"])
 	set_score(ReviveManager.revive_state["score"])
+	player.hp = min(3, player.max_hp)
 
 	# Reconnect signals
 	player.laser_shot.connect(_on_player_laser_shot)
@@ -638,13 +665,27 @@ func revive_player() -> void:
 	gos.visible = false
 	$UILayer/HUD.visible = true
 	$UILayer/HUD/PauseButton.visible = true
+	$UILayer/HUD/KillLabel.visible = false
+	player.call_deferred("update_heart_display")
+	player.call_deferred("low_health_alert")
 
 	ReviveManager.revive_state.clear()
 	WatchAd.was_rewarded = false
 	get_tree().paused = false
+
+	if GameSession.mode == "survival":
+		timer.timeout.connect(_on_enemy_spawn_timer_timeout)
+		timer.start()
 
 func _on_revive_from_ui() -> void:
 	if WatchAd.was_rewarded:
 		revive_player()
 	else:
 		SceneHelper._deferred_change_scene.call_deferred("res://Scenes/AdVert Scenes/AdScreen.tscn")
+
+func setup_game_world():
+	# Enemy & buff pools
+	enemy_scenes.clear()
+	buff_scenes.clear()
+	enemy_scenes.append(all_enemy_scenes[0])
+	buff_scenes.append(all_buff_scenes[0])
