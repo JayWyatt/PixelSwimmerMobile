@@ -3,6 +3,7 @@ extends Node2D
 #export variables
 @export var bacteria_minion_scene: PackedScene
 @export var boss_minion_scene: PackedScene
+@export var player_scene: PackedScene
 
 #onready variables
 @onready var player := $Player
@@ -128,6 +129,11 @@ func set_score(value):
 
 #READY FUNCTION #run this code when the scene starts and everything is in place
 func _ready() -> void:
+	if not revive_state.is_empty():
+		gos.visible = true
+		$UILayer/HUD.visible = false
+		return
+	
 	if is_instance_valid(WatchAd):
 		WatchAd.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 	
@@ -166,6 +172,10 @@ func _ready() -> void:
 	high_score = GameSession.high_score
 	player.laser_shot.connect(_on_player_laser_shot)
 	player.killed.connect(_on_player_killed)
+	
+	if gos and not gos.revive_requested.is_connected(_on_revive_from_ui):
+		gos.revive_requested.connect(_on_revive_from_ui)
+
 
 #FUNCTIONS
 
@@ -599,21 +609,42 @@ func _fail_level_due_to_kills():
 
 func _on_rewarded_ad_finished(success: bool) -> void:
 	if success:
-		revive_player()
+		print("✅ Reward granted, waiting for revive click")
 	else:
-		print("⚠ Rewarded ad failed or was skipped")
+		print("⚠ Reward failed or skipped")
 
 func revive_player() -> void:
 	if revive_state.is_empty():
 		return
 
-	get_tree().paused = false
+	# Safety: remove existing player if needed
+	if is_instance_valid(player):
+		player.queue_free()
 
+	# Recreate player
+	player = player_scene.instantiate()
+	add_child(player)
+
+	# Restore save data
 	player.load_save_data(revive_state["player"])
 	set_score(revive_state["score"])
 
+	# Reconnect signals
+	player.laser_shot.connect(_on_player_laser_shot)
+	player.killed.connect(_on_player_killed)
+
+	# Restore UI
 	gos.visible = false
 	$UILayer/HUD.visible = true
 	$UILayer/HUD/PauseButton.visible = true
 
+	get_tree().paused = false
 	WatchAd.was_rewarded = false
+
+func _on_revive_from_ui() -> void:
+	print("Revive pressed. was_rewarded =", WatchAd.was_rewarded)
+	print("revive_state empty =", revive_state.is_empty())
+	if WatchAd.was_rewarded:
+		revive_player()
+	else:
+		SceneHelper._deferred_change_scene.call_deferred("res://Scenes/AdVert Scenes/AdScreen.tscn")

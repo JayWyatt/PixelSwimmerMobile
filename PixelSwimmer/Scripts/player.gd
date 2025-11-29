@@ -322,3 +322,15 @@ func get_save_data() -> Dictionary:
 		"hp": hp,
 		# score is managed in root/autoload, not here
 	}
+
+func load_save_data(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+
+	global_position = data.get("position", global_position)
+	hp = data.get("hp", max_hp)
+	is_dead = false
+	is_vulnerable = true
+
+	update_heart_display()
+	low_health_alert()
